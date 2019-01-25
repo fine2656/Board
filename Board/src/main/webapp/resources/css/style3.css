@@ -1,0 +1,27 @@
+@CHARSET "UTF-8";
+
+body {font-family: Arial, Helvetica, sans-serif, 돋움; }
+
+#mycontainer	{ width:90%; margin:0 auto; padding:1%; }
+#myheader		{ background-color:#EBEBE0; min-height:56px; padding: 1%; }
+#mycontent		{ background-color:#F5F5F5; float:left; width:70%; min-height:800px; padding-top: 5%;}
+#mysideinfo		{ background-color:#F0FFFF; float:left; width:30%; min-height:800px; padding-top: 2.5%;}
+#myfooter		{ background-color:#555555; clear:both; min-height:100px; }
+	
+#myheader a {text-decoration:none;}
+
+/* mouse over link */
+#myheader a:hover {color: orange; font-weight: bolder;}
+
+#myheader .mynav {font-size: 13pt;}
+
+.custom_center {text-align:center;}
+.custom_font {text-align:center; font-weight:bold; font-size:12pt;}
+.custom_color {color:red;}
+.custom_tdheight {height: 30px;}
+
+
+
+
+
+

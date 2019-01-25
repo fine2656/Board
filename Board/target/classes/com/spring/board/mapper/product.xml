@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="product">
+    
+	<resultMap type="HashMap" id="getCatecodeListMap">
+		<result property="CATECODE" 	column="catecode" 	javaType="String" />
+ 		<result property="CATENAME" 	column="catename" 	javaType="String" />
+	</resultMap>
+	<select id="getCatecode" resultMap="getCatecodeListMap">
+		select catecode, catename
+		from spring_product_category
+		order by catecodeseq asc
+	</select>
+	
+	
+	<resultMap type="HashMap" id="getSpeccodeListMap">
+		<result property="SPECCODE" 	column="speccode" 	javaType="String" />
+ 		<result property="SPECNAME" 	column="specname" 	javaType="String" />
+	</resultMap>
+	<select id="getSpeccode" resultMap="getSpeccodeListMap">
+		select speccode, specname
+        from spring_product_spec
+        order by specseq asc
+	</select>
+	
+	
+	<select id="getProdseq" resultType="int">
+		select seq_spring_product.nextval
+		from dual
+	</select>
+	
+	
+	<insert id="addProduct" parameterType="HashMap">
+		insert into spring_product(prodseq, prodname, fk_catecode, prodcompany, prodqty, price, saleprice, fk_speccode, prodcontent, prodpoint) 
+		values(#{PRODSEQ}, #{PRODNAME}, #{FK_CATECODE}, #{PRODCOMPANY}, default, #{PRICE}, #{SALEPRICE}, #{FK_SPECCODE}, #{PRODCONTENT}, #{PRODPOINT})  
+	</insert>
+
+
+    <insert id="addProductimage" parameterType="HashMap">
+    	insert into spring_productimage(prodimageseq, fk_prodseq, imagefilename, imageorgFilename, imagefileSize, thumbnailFileName) 
+		values(seq_spring_productimage.nextval, #{FK_PRODSEQ}, #{IMAGEFILENAME}, #{IMAGEORGFILENAME}, #{IMAGEFILESIZE}, #{THUMBNAILFILENAME})  
+    </insert>
+    
+    
+    <resultMap type="HashMap" id="getProdseqListMap">
+		<result property="PRODSEQ" 	 column="prodseq" 	javaType="String" />
+ 		<result property="PRODNAME"  column="prodname" 	javaType="String" />
+	</resultMap>    
+    <select id="getProdseqList" resultMap="getProdseqListMap">
+		select prodseq, prodname
+        from spring_product
+	</select>
+    
+    
+    <insert id="insertProductibgo" parameterType="HashMap">
+    	insert into spring_productibgo(productibgoseq, prodseq, ibgoqty, prodinputdate) 
+		values(seq_spring_productibgo.nextval, #{PRODSEQ}, #{IBGOQTY}, default)  
+    </insert>
+    
+    <update id="updateProdqty" parameterType="HashMap" >
+    	update spring_product set prodqty = prodqty + #{IBGOQTY}
+    	where prodseq = #{PRODSEQ}
+    </update>
+    
+    
+    <resultMap type="HashMap" id="getListProductMap">
+		<result property="PRODSEQ" 				column="prodseq" 			javaType="String" />
+ 		<result property="CATENAME" 			column="catename" 			javaType="String" />
+ 		<result property="PRODNAME" 			column="prodname" 			javaType="String" />
+ 		<result property="PRODCOMPANY" 			column="prodcompany" 		javaType="String" />
+ 		<result property="SPECNAME" 			column="specname" 			javaType="String" />
+ 		<result property="THUMBNAILFILENAME" 	column="thumbnailfilename" 	javaType="String" />
+	</resultMap>
+	<select id="getListProduct" resultMap="getListProductMap">
+		select A.prodseq, A.catename, A.prodname, A.prodcompany, A.specname, B.thumbnailfilename
+		from view_spring_productinfo A left join (select *
+                                          		  from spring_productimage
+                                          		  where prodimageseq in (select min(prodimageseq)
+                                                                		 from spring_productimage
+                                                                		 group by fk_prodseq)) B
+		on A.prodseq = B.fk_prodseq
+	</select>
+    
+
+    <resultMap type="HashMap" id="getviewProductMap">
+		<result property="CATENAME" 	column="catename" 		javaType="String" />
+ 		<result property="PRODSEQ"  	column="prodseq" 		javaType="String" />
+ 		<result property="PRODNAME"  	column="prodname" 		javaType="String" />
+ 		<result property="PRODCOMPANY"  column="prodcompany" 	javaType="String" />
+ 		<result property="PRODQTY"  	column="prodqty" 		javaType="String" />
+ 		<result property="PRICE"  		column="price" 			javaType="String" />
+ 		<result property="SALEPRICE"  	column="saleprice" 		javaType="String" />
+ 		<result property="PRODCONTENT"  column="prodcontent" 	javaType="String" />
+ 		<result property="PRODPOINT"  	column="prodpoint" 		javaType="String" />
+ 		<result property="SPECNAME"  	column="specname" 		javaType="String" />
+	</resultMap>    
+    <select id="getviewProduct" resultMap="getviewProductMap" parameterType="String">
+		select catename, prodseq, prodname, prodcompany, prodqty, price, saleprice, prodcontent, prodpoint, specname 
+        from view_spring_productinfo
+        where prodseq = #{fk_prodseq}
+	</select>
+
+
+	<resultMap type="HashMap" id="getviewProductImageListMap">
+		<result property="IMAGEFILENAME" 	 	column="imagefilename" 		javaType="String" />
+ 		<result property="IMAGEORGFILENAME"  	column="imageorgfilename" 	javaType="String" />
+ 		<result property="IMAGEFILESIZE"  		column="imagefilesize" 		javaType="String" />
+ 		<result property="THUMBNAILFILENAME"  	column="thumbnailfilename" 	javaType="String" />
+	</resultMap>    
+    <select id="getviewProductImage" parameterType="String" resultMap="getviewProductImageListMap">
+		select imagefilename, imageorgfilename, imagefilesize, thumbnailfilename
+		from spring_productimage
+		where fk_prodseq = #{fk_prodseq}
+		order by prodimageseq asc
+	</select>
+	
+	   
+    <select id="getLargeImgFilename" resultType="String" parameterType="HashMap"> 
+		select imagefilename
+		from spring_productimage
+		where fk_prodseq = #{fk_prodseq}
+		and thumbnailfilename = #{thumbnailFileName}
+	</select>
+	
+
+
+</mapper>
+
+

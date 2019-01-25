@@ -1,0 +1,142 @@
+﻿>>>> GSON - Java 객체(object)를 JSON 표현식으로 변환하는 API <<<<
+
+https://sites.google.com/site/gson/gson-user-guide
+
+Gson 은 Java 객체를 JSON 표현식으로 변환할 수 있게 하는 Java 라이브러리 이다.
+물론 JSON 표현식 형태의 스트링을 Java 객체로 변환 또한 가능하다. 
+주로 사용할 클래스는 Gson 이고 그냥 new Gson() 으로 객체생성하면 된다.
+Gson 객체는 다수의 Json 직렬화(serialization)와 역직렬화(deserialization) 처리시에 
+계속 재사용해도 된다.
+
+<!-- === Gson 은 Java 객체를 JSON 표현식으로 변환할 수 있게 해주는 Java 라이브러리임. 
+         또한 거꾸로 JSON 표현식 형태의 String 을 Java 객체로 변환도 가능하게 해주는 라이브러리임.
+	 pom.xml 에 추가함 === -->
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.8.1</version>
+</dependency>
+
+
+
+=== 예제 ===
+
+>>> 1. 자바의 기본자료형(Primitive 타입), 배열 변환하기
+ 
+// *** Json 직렬화(serialization) 하기 ***
+
+Gson gson = new Gson();
+
+gson.toJson(1004);                           ==> prints 1004
+gson.toJson(new Long(12345678901234567890)); ==> prints 12345678901234567890
+gson.toJson(false);                          ==> prints false
+gson.toJson("홍길동");                        ==> prints "홍길동"
+
+int[] pointArr = {90, 95, 89, 100, 87};      
+gson.toJson(pointArr);                       ==> prints [90, 95, 89, 100, 87]
+
+String[] nameArr = {"한석규", "두석규", "세석규", "네석규", "오석규"};
+gson.toJson(nameArr);                        ==> prints ["한석규", "두석규", "세석규", "네석규", "오석규"]
+
+
+// *** Json 역직렬화(deserialization) 하기 ***
+
+int no = gson.fromJson("1004", int.class);
+Integer num = gson.fromJson("1004", Integer.class);
+Long ln = gson.fromJson("12345678901234567890", Long.class);
+Boolean bool = gson.fromJson("false", Boolean.class);
+String name = gson.fromJson("\"홍길동\"", String.class);
+String anothername = gson.fromJson("[\"홍길동\"]", String.class);
+int pointArr2 = gson.fromJson("[90, 95, 89, 100, 87]", int[].class);
+String[] nameArr2 = gson.fromJson("[\"한석규\", \"두석규\", \"세석규\", \"네석규\", \"오석규\"]", String[].class);
+
+
+
+>>> 2. 자바의 객체(Object) 변환하기
+
+class BagOfPrimitives {
+  
+    private int     value1 = 1;
+    private String  value2 = "abc";
+    private transient int value3 = 3;
+  
+    BagOfPrimitives() {
+      // no-args constructor
+    }
+
+}
+
+// *** Json 직렬화(serialization) 하기 ***
+BagOfPrimitives obj = new BagOfPrimitives();
+Gson gson = new Gson();
+
+String json = gson.toJson(obj);  ==> json is {"value1":1,"value2":"abc"}
+
+
+// *** Json 역직렬화(deserialization) 하기 ***
+BagOfPrimitives obj2 = gson.fromJson(json, BagOfPrimitives.class);  ==> obj2 는 obj 와 같게 된다.
+
+
+>>>>> 객체변환시 아래와 같은 특징이 있다 <<<<<<
+1. primitive 접근자의 필드들도 변환이 가능하다.
+2. 특정 어노테이션 사용할 필요없이 기본적으로 현재 클래스의 모든 필드들은 직렬화 및 역직렬화 대상이 된다.
+3. transient 구분자를 사용하면 직렬화 및 역직렬화 처리에서 제외된다.
+4. 직렬화시 null 값인 필드는 자동 제외된다. 역직렬화시에 JSON 에 일치하는 필드가 없으면 null 로 셋팅된다.
+5. Synthetic 필드는 직렬화 역직렬화 대상에서 제외된다. 
+
+
+>>> 3. 자바의 컬렉션(Collections) 변환하기
+    ==> 배열과 같이 []로 표현되며, 하지만 역직렬화할때 좀 다른것을 알 수 있다.
+
+Collection<Integer> ints = Lists.immutableList(1,2,3,4,5);
+
+Gson gson = new Gson();
+
+
+// *** Json 직렬화(serialization) 하기 ***
+String json = gson.toJson(ints); ==> json is [1,2,3,4,5]
+
+
+// *** Json 역직렬화(deserialization) 하기 ***
+Type collectionType = new TypeToken<Collection<Integer>>(){}.getType(); 
+==> 주의할 사항은 컬렉션(Collections)에 저장된 타입을 알려주는 것이 없으므로
+    우리가 직접 타입을 기술해주어야 한다.
+
+Collection<Integer> ints2 = gson.fromJson(json, collectionType);  ==> ints2 는 ints 와 같게 된다.
+
+
+※※※※※ 객체는 {} 로 묶여서 필드명:밸류 형식으로 매핑되어 표현되고, 
+           배열은 [] 로 묶여있단 것만 잘 알면된다. ※※※※※
+
+----------------------------------------------------------------------------------
+
+Member 클래스 ==> 직원정보를 가지고 있는 클래스.
+ 직원명
+,나이
+,가족들의 정보(List 형태)
+
+
+Family 클래스 ==> 직원의 가족정보를 가지고 있는 클래스.
+ 관계
+,성명
+,나이
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

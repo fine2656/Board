@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="snackChart">
+
+	<resultMap type="java.util.HashMap" id="getSnackNameListMap">
+		<result property="SNACKNO" 		column="snackno" 	javaType="String" />
+ 		<result property="SNACKNAME" 	column="snackname" 	javaType="String" />
+	</resultMap>
+	<select id="getSnackNameList" resultMap="getSnackNameListMap">
+		select snackno, snackname
+		from chart_snack
+		where snackno in (select distinct fk_snackno from chart_snackDetail)
+		order by snackno asc
+	</select>
+
+
+
+	<resultMap type="java.util.HashMap" id="getSnackTypeCodeListMap">
+		<result property="TYPECODE" 	column="typecode" 	javaType="String" />
+ 		<result property="TYPENAME" 	column="typename" 	javaType="String" />
+	</resultMap>
+	<select id="getSnackTypeCodeList" resultMap="getSnackTypeCodeListMap" parameterType="String">
+		select typecode, typename
+		from chart_snackType
+		where typecode in(select fk_typecode
+                  		  from chart_snackDetail
+                  		   where fk_snackno = #{snackno})
+	</select>
+	
+	
+	<insert id="insert_snackOrder" parameterType="String">
+		insert into chart_snackOrder(orderno, userid, orderday)
+		values(seq_chart_snackOrder.nextval, #{userid}, default)
+	</insert>
+	
+	
+	<insert id="insert_snackOrderDetail" parameterType="HashMap">
+		insert into chart_snackOrderDetail(orderDetailno, fk_orderno, fk_snackDetailno, oqty)
+		values( seq_chart_snackOrderDetail.nextval
+	    	 , (select max(orderno) from chart_snackOrder where userid = #{USERID})
+	    	 , (select snackDetailno
+	       		from chart_snackDetail
+	       		where fk_snackno = #{SNACKNO} and fk_typecode = #{TYPECODE})
+	    	 , #{OQTY})
+	</insert>
+	
+		
+	<resultMap type="HashMap" id="getorderRankListMap">
+		<result property="RANKING" 		column="ranking" 		javaType="String" />
+ 		<result property="SNACKNAME" 	column="snackname" 		javaType="String" />
+ 		<result property="TOTALQTY" 	column="totalqty" 		javaType="String" />
+ 		<result property="PERCENTAGE" 	column="percentage" 	javaType="String" />
+ 	</resultMap>
+	<select id="snackorderRankList" resultMap="getorderRankListMap">
+		select rank() over(order by sum(A.oqty) desc) as ranking
+		     , C.snackname 
+		     , sum(A.oqty) as totalqty
+		     , trunc( sum(A.oqty)/(select sum(oqty) from chart_snackOrderDetail) * 100, 1) as percentage
+		from chart_snackOrderDetail A left join chart_snackDetail B
+		on A.fk_snackDetailno = B.snackDetailno
+		left join chart_snack C
+		on B.fk_snackno = C.snackno
+		group by C.snackname
+	</select>
+	
+	
+	<resultMap type="HashMap" id="getSnackDetailnameNpercentListResultMap">
+		<result property="TYPENAME" 	column="TYPENAME" 	javaType="String" />
+ 		<result property="PERCENT" 	    column="PERCENT" 	javaType="String" />
+	</resultMap>
+	<select id="getSnackDetailnameNpercentList" parameterType="String" resultMap="getSnackDetailnameNpercentListResultMap"> 
+		select C.typename as TYPENAME
+		     , trunc( sum(A.oqty)/(select sum(oqty) from chart_snackOrderDetail) * 100, 1) as PERCENT
+		from chart_snackOrderDetail A left join chart_snackDetail B
+		on A.fk_snackDetailno = B.snackDetailno
+		left join chart_snackType C
+		on B.fk_typecode = C.typecode
+		left join chart_snack D
+		on B.fk_snackno = D.snackno
+		where D.snackname = #{snackname}
+		group by C.typename
+		order by TYPENAME
+	</select>
+	
+	
+	<resultMap type="HashMap" id="my_snackorderStatisticsMap">
+		<result property="SNACKNAME" 	column="snackname" 		javaType="String" />
+ 		<result property="TOTALQTY" 	column="totalqty" 		javaType="String" />
+ 		<result property="PERCENTAGE" 	column="percentage" 	javaType="String" />
+ 	</resultMap>
+	<select id="my_snackorderStatistics" resultMap="my_snackorderStatisticsMap" parameterType="String">
+		select D.snackname 
+		     , sum(B.oqty) as totalqty
+		     , trunc( sum(B.oqty)/(select sum(oqty) from chart_snackOrderDetail) * 100, 1) as percentage
+		from chart_snackOrder A join chart_snackOrderDetail B 
+		on A.orderno = B.fk_orderno
+		join chart_snackDetail C
+		on B.fk_snackDetailno = C.snackDetailno
+		left join chart_snack D
+		on C.fk_snackno = D.snackno
+		where A.userid = #{userid}
+		group by D.snackname
+		order by totalqty desc
+	</select>
+
+</mapper>

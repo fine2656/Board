@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>media query</title>
+<style type="text/css">
+/*767px 이하*/
+@media screen and (max-width:767px){
+       h1{color:red;}
+       ul{
+       		list-style:none;
+       }
+}
+/*768px ~ 991px*/
+@media screen and (min-width:768px) and (max-width: 991px) {
+       h1{color:blue;}
+       ul{
+       		list-style:none;
+       }
+       ul li{
+       		display:inline;
+       		background-color:skyblue;
+       }
+}
+/*992px이상*/
+@media screen and (min-width:992px){
+       h1{color:green;}
+       ul{
+       		list-style:none;
+       }
+       ul li{
+       		background-color:green;
+       		color:white;
+       		display:inline;
+       }
+}
+</style>
+</head>
+<body>
+<h1>미디어 쿼리</h1>
+<ul>
+	<li>서울</li>
+	<li>부산</li>
+	<li>대구</li>
+	<li>광주</li>
+	<li>인천</li>
+</ul>
+</body>
+</html>
