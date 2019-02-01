@@ -110,7 +110,18 @@ public class ProductDAO implements InterProductDAO {
 	}
 
 	
+	// === Spring Scheduler(스프링 스케줄러)를 사용한 email 발송하기 예제 === //
+		@Override
+		public List<HashMap<String, String>> getReservationList() {
+			List<HashMap<String, String>> getReservationList = sqlsession.selectList("product.getReservationList");  
+			return getReservationList;
+		}
 
+		// === Spring Scheduler(스프링 스케줄러)를 사용한 email 발송하기 예제 === //
+		@Override
+		public void setMailSendCheck(HashMap<String, String[]> paraMap) {
+			sqlsession.update("product.setMailSendCheck", paraMap);
+		}
 	
 
 	

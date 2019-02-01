@@ -18,7 +18,7 @@ public interface InterProductService {
 	List<HashMap<String, String>> getProdseqList(); // 제품번호, 제품명 가져오기
 	
 	int addproductStore(HashMap<String, String> paraMap) throws Throwable; // 제품입고 테이블에 제품입고하기
-                                                                           // 제품정보테이블에 입고된 양만큼 재고량 증가시키기
+                                                                           // 제품정보테이블에 입고된 양만큼 재고량 증가시키기 
 	
 	List<HashMap<String, String>> getListProduct(); // 썸네일파일명을 포함한 제품목록 가져오기
 	
@@ -26,5 +26,7 @@ public interface InterProductService {
 	List<HashMap<String, String>> getviewProductImage(String fk_prodseq); // 특정제품의 원래이미지파일명 및 썸네일이미지파일명 가져오기 
 	
 	String getLargeImgFilename(HashMap<String, String> map); // 특정 썸네일이미지파일명에 대한 원래이미지파일명 가져오기 
+	
+	void scheduleTestEmailSending() throws Exception; // Spring Scheduler(스프링 스케줄러)를 사용한 email 발송하기 예제 
 		
 }

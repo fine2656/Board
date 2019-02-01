@@ -123,9 +123,32 @@
 		where fk_prodseq = #{fk_prodseq}
 		and thumbnailfilename = #{thumbnailFileName}
 	</select>
-	
+	<resultMap type="HashMap" id="getReservationListMap">
+		<result property="RESERVATIONSEQ" 	column="reservationSeq" 	javaType="String" />
+		<result property="USERID" 	 		column="userid" 			javaType="String" />
+ 		<result property="NAME"  			column="name" 				javaType="String" />
+ 		<result property="EMAIL"  			column="email" 				javaType="String" />
+ 		<result property="RESERVATIONDATE"  column="reservationDate" 	javaType="String" />
+	</resultMap>    
+    <select id="getReservationList" resultMap="getReservationListMap">
+		select R.reservationSeq, M.userid, M.name, M.email, 
+		       to_char(R.reservationDate,'yyyy-mm-dd hh24:mm') as reservationDate, R.mailSendCheck
+		from jsp_member M join scheduletest_reservation R
+		on M.userid = R.fk_userid
+		where to_char(reservationDate, 'yyyy-mm-dd') = to_char(sysdate+1, 'yyyy-mm-dd')
+		and R.mailSendCheck = 0
+	</select>
 
 
+    <update id="setMailSendCheck" parameterType="HashMap">
+		update scheduletest_reservation set mailSendCheck = 1
+		where reservationSeq IN 
+			<foreach collection="RESERVATIONSEQARR" index="i" open="(" separator="," close=")">
+				${RESERVATIONSEQARR[i]}
+			</foreach> 
+    </update>
+
+<!-- reservationSeq : 예약 번호 -->
 </mapper>
 
 
